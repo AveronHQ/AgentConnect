@@ -2,6 +2,8 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
+using AgentConnect.Updates.Models;
+using AgentConnect.Updates.Services;
 using AgentConnect.Updates.UI;
 
 #if DEBUG
@@ -16,6 +18,8 @@ namespace AgentConnect
     public partial class MainWindow : Window
     {
         private bool _isDarkTheme = false;
+        private ExtendedUpdateInfo _pendingUpdate;
+        private IUpdateService _updateService;
 
         public MainWindow()
         {
@@ -28,6 +32,30 @@ namespace AgentConnect
             // Show debug button for testing update prompt
             DebugUpdateButton.Visibility = Visibility.Visible;
 #endif
+        }
+
+        public void ShowUpdateAvailable(ExtendedUpdateInfo updateInfo, IUpdateService updateService)
+        {
+            _pendingUpdate = updateInfo;
+            _updateService = updateService;
+            UpdateAvailableButton.Visibility = Visibility.Visible;
+        }
+
+        public void HideUpdateAvailable()
+        {
+            _pendingUpdate = null;
+            _updateService = null;
+            UpdateAvailableButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void UpdateAvailableButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pendingUpdate != null && _updateService != null)
+            {
+                var promptWindow = new UpdatePromptWindow(_pendingUpdate, _updateService);
+                promptWindow.Show();
+                promptWindow.Activate();
+            }
         }
 
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)

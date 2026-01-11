@@ -23,6 +23,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- App Title -->
@@ -42,9 +43,48 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
+                <!-- Update Available Button -->
+                <Button x:Name="UpdateAvailableButton"
+                        Grid.Column="2"
+                        Click="UpdateAvailableButton_Click"
+                        VerticalAlignment="Center"
+                        Margin="0,0,12,0"
+                        Cursor="Hand"
+                        Visibility="Collapsed"
+                        ToolTip="A new version is available">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="ButtonBorder"
+                                    Background="#0078D4"
+                                    CornerRadius="6"
+                                    Padding="10,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- Download/Update arrow icon -->
+                                    <Path Width="14" Height="14"
+                                          Stretch="Uniform"
+                                          Fill="White"
+                                          VerticalAlignment="Center"
+                                          Data="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                                    <TextBlock Text="Update Available"
+                                               Margin="6,0,0,0"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ButtonBorder" Property="Background" Value="#106EBE"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
                 <!-- Theme Toggle Button -->
                 <Button x:Name="ThemeToggleButton"
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Click="ThemeToggleButton_Click"
                         VerticalAlignment="Center"
                         Cursor="Hand"

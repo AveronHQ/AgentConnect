@@ -95,18 +95,26 @@ namespace AgentConnect
             {
                 UpdateLogger.Log("App", "Inside Dispatcher.Invoke");
 
+                var updateService = ((UpdateScheduler)sender).UpdateService;
+
+                // Show the update button in MainWindow header if available
+                if (MainWindow is MainWindow mainWin)
+                {
+                    UpdateLogger.Log("App", "Showing update button in MainWindow header");
+                    mainWin.ShowUpdateAvailable(updateInfo, updateService);
+                }
+
                 if (updateInfo.Type != Updates.Models.UpdateType.Silent)
                 {
                     UpdateLogger.Log("App", "Creating UpdatePromptWindow...");
-                    var updateService = ((UpdateScheduler)sender).UpdateService;
                     var promptWindow = new Updates.UI.UpdatePromptWindow(updateInfo, updateService);
 
-                    UpdateLogger.Log("App", $"MainWindow: {(MainWindow != null ? "exists" : "NULL")}");
-                    promptWindow.Owner = MainWindow;
-
-                    UpdateLogger.Log("App", "Showing UpdatePromptWindow...");
-                    promptWindow.ShowDialog();
-                    UpdateLogger.Log("App", "UpdatePromptWindow closed");
+                    // Don't set Owner - keep the window independent so it stays open
+                    // when splash closes and main window opens
+                    UpdateLogger.Log("App", "Showing UpdatePromptWindow (independent, topmost)...");
+                    promptWindow.Show();
+                    promptWindow.Activate();
+                    UpdateLogger.Log("App", "UpdatePromptWindow shown");
                 }
                 else
                 {
