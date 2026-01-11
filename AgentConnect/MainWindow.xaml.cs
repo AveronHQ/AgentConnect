@@ -1,8 +1,8 @@
 using System.Windows;
+using AgentConnect.Updates.UI;
 
 #if DEBUG
 using AgentConnect.DevTools;
-using AgentConnect.Updates.UI;
 #endif
 
 namespace AgentConnect
@@ -25,13 +25,14 @@ namespace AgentConnect
 #endif
         }
 
-#if DEBUG
+        // Handler must exist for XAML binding even in Release (button is hidden)
         private void DebugUpdateButton_Click(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             var updateWindow = new UpdatePromptWindow();
             updateWindow.Owner = this;
             updateWindow.ShowDialog();
-        }
 #endif
+        }
     }
 }
