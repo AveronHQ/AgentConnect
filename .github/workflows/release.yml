@@ -8,7 +8,7 @@ on:
 env:
   SOLUTION_PATH: 'AveronHQ.sln'
   PROJECT_PATH: 'AgentConnect/AgentConnect.csproj'
-  PUBLISH_DIR: 'AgentConnect/publish'
+  PUBLISH_DIR: 'publish'
   RELEASES_DIR: 'Releases'
 
 permissions:
