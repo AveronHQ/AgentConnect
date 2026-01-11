@@ -10,6 +10,16 @@
         <!-- Main content area -->
         <Grid x:Name="MainContent">
             <!-- Your main content goes here -->
+
+            <!-- Debug button for testing UpdatePromptWindow -->
+            <Button x:Name="DebugUpdateButton"
+                    Content="Test Update Prompt"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="10"
+                    Padding="10,5"
+                    Visibility="Collapsed"
+                    Click="DebugUpdateButton_Click"/>
         </Grid>
     </Grid>
 </Window>
