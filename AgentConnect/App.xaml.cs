@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 using System.Windows;
+using AgentConnect.Services;
 using AgentConnect.Updates.Services;
 
 namespace AgentConnect
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
         private IUpdateScheduler _updateScheduler;
@@ -15,62 +13,104 @@ namespace AgentConnect
         {
             base.OnStartup(e);
 
-            // Show splash screen first (it will show MainWindow after connectivity checks)
+            UpdateLogger.Log("App", "========================================");
+            UpdateLogger.Log("App", "=== APPLICATION STARTUP ===");
+            UpdateLogger.Log("App", "========================================");
+            UpdateLogger.Log("App", $"Log file: {UpdateLogger.LogPath}");
+            UpdateLogger.Log("App", $"Args: {string.Join(", ", e.Args)}");
+
+            UpdateLogger.Log("App", "Creating SplashScreen...");
             var splashScreen = new SplashScreen();
             splashScreen.Show();
+            UpdateLogger.Log("App", "SplashScreen shown");
 
-            // Initialize and start update scheduler
+            UpdateLogger.Log("App", "Initializing update system...");
             InitializeUpdateSystem();
+            UpdateLogger.Log("App", "Update system initialized");
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            // Clean up update scheduler
+            UpdateLogger.Log("App", "=== APPLICATION EXIT ===");
             _updateScheduler?.Dispose();
             base.OnExit(e);
         }
 
         private void InitializeUpdateSystem()
         {
+            UpdateLogger.Log("App", "=== InitializeUpdateSystem START ===");
+
             try
             {
-                // Create update services
+                UpdateLogger.Log("App", "Creating UpdateManifestService...");
                 var manifestService = new UpdateManifestService();
-                var deferralService = new DeferralService();
-                var telemetryService = new UpdateTelemetryService(enabled: false); // Telemetry disabled for now
 
+                UpdateLogger.Log("App", "Creating DeferralService...");
+                var deferralService = new DeferralService();
+
+                UpdateLogger.Log("App", "Creating UpdateTelemetryService...");
+                var telemetryService = new UpdateTelemetryService(enabled: false);
+
+                UpdateLogger.Log("App", "Creating UpdateService...");
                 var updateService = new UpdateService(
                     manifestService,
                     deferralService,
                     telemetryService);
 
-                // Only start scheduler if running as installed app
+                UpdateLogger.Log("App", $"UpdateService.IsInstalled: {updateService.IsInstalled}");
+                UpdateLogger.Log("App", $"UpdateService.CurrentVersion: {updateService.CurrentVersion}");
+
                 if (updateService.IsInstalled)
                 {
+                    UpdateLogger.Log("App", "App IS installed - creating UpdateScheduler...");
                     _updateScheduler = new UpdateScheduler(updateService, this.Dispatcher);
+
+                    UpdateLogger.Log("App", "Subscribing to UpdateAvailable event...");
                     _updateScheduler.UpdateAvailable += OnUpdateAvailable;
+
+                    UpdateLogger.Log("App", "Starting scheduler...");
                     _updateScheduler.Start();
+                    UpdateLogger.Log("App", "Scheduler started");
+                }
+                else
+                {
+                    UpdateLogger.Log("App", "App is NOT installed - skipping update scheduler");
                 }
             }
             catch (Exception ex)
             {
-                // Don't crash the app if update system fails to initialize
-                System.Diagnostics.Debug.WriteLine($"Update system initialization failed: {ex.Message}");
+                UpdateLogger.LogException("App", ex);
             }
+
+            UpdateLogger.Log("App", "=== InitializeUpdateSystem END ===");
         }
 
         private void OnUpdateAvailable(object sender, Updates.Models.ExtendedUpdateInfo updateInfo)
         {
-            // Handle update available event on UI thread
+            UpdateLogger.Log("App", "=== OnUpdateAvailable EVENT RECEIVED ===");
+            UpdateLogger.Log("App", $"Update type: {updateInfo.Type}");
+            UpdateLogger.Log("App", $"Target version: {updateInfo.TargetVersion}");
+
             Dispatcher.Invoke(() =>
             {
-                // For prompted/forced/security updates, show the prompt window
+                UpdateLogger.Log("App", "Inside Dispatcher.Invoke");
+
                 if (updateInfo.Type != Updates.Models.UpdateType.Silent)
                 {
+                    UpdateLogger.Log("App", "Creating UpdatePromptWindow...");
                     var updateService = ((UpdateScheduler)sender).UpdateService;
                     var promptWindow = new Updates.UI.UpdatePromptWindow(updateInfo, updateService);
+
+                    UpdateLogger.Log("App", $"MainWindow: {(MainWindow != null ? "exists" : "NULL")}");
                     promptWindow.Owner = MainWindow;
+
+                    UpdateLogger.Log("App", "Showing UpdatePromptWindow...");
                     promptWindow.ShowDialog();
+                    UpdateLogger.Log("App", "UpdatePromptWindow closed");
+                }
+                else
+                {
+                    UpdateLogger.Log("App", "Silent update - not showing prompt");
                 }
             });
         }

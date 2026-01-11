@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using AgentConnect.Services;
 using AgentConnect.Updates.Configuration;
 using AgentConnect.Updates.Models;
 using Velopack;
@@ -9,9 +10,6 @@ using Velopack.Sources;
 
 namespace AgentConnect.Updates.Services
 {
-    /// <summary>
-    /// Core update service that integrates with Velopack for update management.
-    /// </summary>
     public class UpdateService : IUpdateService
     {
         private readonly UpdateManager _updateManager;
@@ -31,27 +29,51 @@ namespace AgentConnect.Updates.Services
             IUpdateTelemetryService telemetryService,
             string channel = null)
         {
+            UpdateLogger.Log("UpdateService", "=== CONSTRUCTOR START ===");
+            UpdateLogger.Log("UpdateService", $"Channel param: {channel ?? "(null)"}");
+
             _manifestService = manifestService;
             _deferralService = deferralService;
             _telemetryService = telemetryService;
 
-            var options = new UpdateOptions
+            try
             {
-                ExplicitChannel = channel ?? UpdateConstants.DefaultChannel
-            };
+                var options = new UpdateOptions
+                {
+                    ExplicitChannel = channel ?? UpdateConstants.DefaultChannel
+                };
+                UpdateLogger.Log("UpdateService", $"UpdateOptions.ExplicitChannel: {options.ExplicitChannel}");
 
-            // Use GitHub source for AveronHQ/AgentConnect repository
-            var source = new GithubSource(
-                UpdateConstants.GitHubRepoUrl,
-                accessToken: null, // Public repository
-                prerelease: false  // Only stable releases
-            );
+                UpdateLogger.Log("UpdateService", $"Creating GithubSource with URL: {UpdateConstants.GitHubRepoUrl}");
+                var source = new GithubSource(
+                    UpdateConstants.GitHubRepoUrl,
+                    accessToken: null,
+                    prerelease: false
+                );
+                UpdateLogger.Log("UpdateService", "GithubSource created successfully");
 
-            _updateManager = new UpdateManager(source, options);
+                UpdateLogger.Log("UpdateService", "Creating UpdateManager...");
+                _updateManager = new UpdateManager(source, options);
+                UpdateLogger.Log("UpdateService", "UpdateManager created successfully");
+
+                UpdateLogger.Log("UpdateService", $"IsInstalled: {IsInstalled}");
+                UpdateLogger.Log("UpdateService", $"CurrentVersion: {CurrentVersion}");
+            }
+            catch (Exception ex)
+            {
+                UpdateLogger.LogException("UpdateService", ex);
+                throw;
+            }
+
+            UpdateLogger.Log("UpdateService", "=== CONSTRUCTOR END ===");
         }
 
         public async Task<ExtendedUpdateInfo> CheckForUpdatesAsync(CancellationToken cancellationToken = default)
         {
+            UpdateLogger.Log("UpdateService", "=== CheckForUpdatesAsync START ===");
+            UpdateLogger.Log("UpdateService", $"CurrentVersion: {CurrentVersion}");
+            UpdateLogger.Log("UpdateService", $"IsInstalled: {IsInstalled}");
+
             await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
             {
                 EventType = TelemetryEventType.UpdateCheckStarted,
@@ -60,10 +82,12 @@ namespace AgentConnect.Updates.Services
 
             try
             {
+                UpdateLogger.Log("UpdateService", "Calling _updateManager.CheckForUpdatesAsync()...");
                 var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
                 if (updateInfo == null)
                 {
+                    UpdateLogger.Log("UpdateService", "CheckForUpdatesAsync returned NULL - no updates available");
                     await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
                     {
                         EventType = TelemetryEventType.UpdateCheckCompleted,
@@ -73,10 +97,23 @@ namespace AgentConnect.Updates.Services
                     return null;
                 }
 
-                var targetVersion = updateInfo.TargetFullRelease.Version.ToString();
+                UpdateLogger.Log("UpdateService", "UPDATE FOUND!");
+                UpdateLogger.Log("UpdateService", $"TargetFullRelease.Version: {updateInfo.TargetFullRelease?.Version}");
+                UpdateLogger.Log("UpdateService", $"TargetFullRelease.FileName: {updateInfo.TargetFullRelease?.FileName}");
+                UpdateLogger.Log("UpdateService", $"IsDowngrade: {updateInfo.IsDowngrade}");
 
-                // Fetch extended manifest from GitHub release assets
+                var targetVersion = updateInfo.TargetFullRelease.Version.ToString();
+                UpdateLogger.Log("UpdateService", $"Target version string: {targetVersion}");
+
+                UpdateLogger.Log("UpdateService", "Fetching manifest...");
                 var manifest = await _manifestService.GetManifestAsync(targetVersion, cancellationToken);
+                UpdateLogger.Log("UpdateService", $"Manifest fetched: {(manifest != null ? "SUCCESS" : "NULL")}");
+                if (manifest != null)
+                {
+                    UpdateLogger.Log("UpdateService", $"Manifest.Type: {manifest.Type}");
+                    UpdateLogger.Log("UpdateService", $"Manifest.ReleaseNotes: {manifest.ReleaseNotes}");
+                    UpdateLogger.Log("UpdateService", $"Manifest.MaxDeferrals: {manifest.MaxDeferrals}");
+                }
 
                 var extendedInfo = new ExtendedUpdateInfo
                 {
@@ -89,18 +126,25 @@ namespace AgentConnect.Updates.Services
                     MinutesUntilForced = manifest?.MinutesUntilForced ?? UpdateConstants.MinutesUntilForcedDefault
                 };
 
-                // Apply deferral state
+                UpdateLogger.Log("UpdateService", $"ExtendedInfo.Type: {extendedInfo.Type}");
+
+                UpdateLogger.Log("UpdateService", "Checking deferral state...");
                 var deferralState = await _deferralService.GetDeferralStateAsync(targetVersion);
                 if (deferralState != null)
                 {
+                    UpdateLogger.Log("UpdateService", $"Deferral state found - DeferUntil: {deferralState.DeferUntil}");
+                    UpdateLogger.Log("UpdateService", $"Deferral state - DeferralCount: {deferralState.DeferralCount}");
                     extendedInfo.DeferUntil = deferralState.DeferUntil;
 
-                    // Check if deferral has expired
                     if (deferralState.DeferUntil.HasValue && DateTime.UtcNow < deferralState.DeferUntil.Value)
                     {
-                        // Still in deferral period, don't notify yet
+                        UpdateLogger.Log("UpdateService", "Still in deferral period - returning null");
                         return null;
                     }
+                }
+                else
+                {
+                    UpdateLogger.Log("UpdateService", "No deferral state found");
                 }
 
                 await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
@@ -112,11 +156,14 @@ namespace AgentConnect.Updates.Services
                     Success = true
                 });
 
+                UpdateLogger.Log("UpdateService", "Invoking UpdateAvailable event...");
                 UpdateAvailable?.Invoke(this, extendedInfo);
+                UpdateLogger.Log("UpdateService", "=== CheckForUpdatesAsync END - returning extendedInfo ===");
                 return extendedInfo;
             }
             catch (Exception ex)
             {
+                UpdateLogger.LogException("UpdateService", ex);
                 await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
                 {
                     EventType = TelemetryEventType.UpdateCheckCompleted,
@@ -133,8 +180,10 @@ namespace AgentConnect.Updates.Services
             IProgress<int> progress = null,
             CancellationToken cancellationToken = default)
         {
+            UpdateLogger.Log("UpdateService", "=== DownloadUpdateAsync START ===");
             var stopwatch = Stopwatch.StartNew();
             var targetVersion = updateInfo.TargetVersion;
+            UpdateLogger.Log("UpdateService", $"Downloading version: {targetVersion}");
 
             await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
             {
@@ -149,11 +198,13 @@ namespace AgentConnect.Updates.Services
                     updateInfo.VelopackUpdateInfo,
                     p =>
                     {
+                        UpdateLogger.Log("UpdateService", $"Download progress: {p}%");
                         progress?.Report(p);
                         DownloadProgressChanged?.Invoke(this, p);
                     });
 
                 stopwatch.Stop();
+                UpdateLogger.Log("UpdateService", $"Download completed in {stopwatch.ElapsedMilliseconds}ms");
 
                 await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
                 {
@@ -166,6 +217,7 @@ namespace AgentConnect.Updates.Services
             }
             catch (Exception ex)
             {
+                UpdateLogger.LogException("UpdateService", ex);
                 await _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
                 {
                     EventType = TelemetryEventType.UpdateDownloadFailed,
@@ -181,6 +233,9 @@ namespace AgentConnect.Updates.Services
 
         public void ApplyUpdateAndRestart(ExtendedUpdateInfo updateInfo)
         {
+            UpdateLogger.Log("UpdateService", "=== ApplyUpdateAndRestart ===");
+            UpdateLogger.Log("UpdateService", $"Applying version: {updateInfo.TargetVersion}");
+
             _telemetryService.TrackEventAsync(new UpdateTelemetryEvent
             {
                 EventType = TelemetryEventType.UpdateApplyStarted,
@@ -188,28 +243,37 @@ namespace AgentConnect.Updates.Services
                 TargetVersion = updateInfo.TargetVersion
             }).Wait();
 
-            // Clear deferral state since update is being applied
             _deferralService.ClearDeferralAsync(updateInfo.TargetVersion).Wait();
 
+            UpdateLogger.Log("UpdateService", "Calling ApplyUpdatesAndRestart...");
             _updateManager.ApplyUpdatesAndRestart(updateInfo.VelopackUpdateInfo);
         }
 
         public void ApplyUpdateOnExit(ExtendedUpdateInfo updateInfo)
         {
-            // Clear deferral state since update will be applied
+            UpdateLogger.Log("UpdateService", "=== ApplyUpdateOnExit ===");
+            UpdateLogger.Log("UpdateService", $"Will apply version on exit: {updateInfo.TargetVersion}");
+
             _deferralService.ClearDeferralAsync(updateInfo.TargetVersion).Wait();
 
             _updateManager.WaitExitThenApplyUpdates(updateInfo.VelopackUpdateInfo);
+            UpdateLogger.Log("UpdateService", "WaitExitThenApplyUpdates called");
         }
 
         public async Task<bool> DeferUpdateAsync(ExtendedUpdateInfo updateInfo)
         {
+            UpdateLogger.Log("UpdateService", "=== DeferUpdateAsync ===");
             if (!CanDeferUpdate(updateInfo))
+            {
+                UpdateLogger.Log("UpdateService", "Cannot defer this update");
                 return false;
+            }
 
             var result = await _deferralService.DeferUpdateAsync(
                 updateInfo.TargetVersion,
                 updateInfo.MaxDeferrals);
+
+            UpdateLogger.Log("UpdateService", $"Deferral result: {result}");
 
             if (result)
             {
@@ -228,11 +292,9 @@ namespace AgentConnect.Updates.Services
 
         public bool CanDeferUpdate(ExtendedUpdateInfo updateInfo)
         {
-            // Cannot defer forced or security updates
             if (updateInfo.Type == UpdateType.Forced || updateInfo.Type == UpdateType.SecurityHotfix)
                 return false;
 
-            // Silent updates don't need deferral (they're automatic)
             if (updateInfo.Type == UpdateType.Silent)
                 return false;
 

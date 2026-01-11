@@ -97,6 +97,9 @@
     <Compile Include="Services\NetworkConnectivityService.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Services\UpdateLogger.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Core\Program.cs">
       <SubType>Code</SubType>
     </Compile>
