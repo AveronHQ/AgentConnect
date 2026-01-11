@@ -65,6 +65,22 @@ jobs:
           /p:OutputPath=${{ env.PUBLISH_DIR }} `
           /verbosity:minimal
 
+    - name: List build output
+      shell: pwsh
+      run: |
+        Write-Host "Looking for AgentConnect.exe..."
+        Get-ChildItem -Recurse -Filter "AgentConnect.exe" | ForEach-Object { Write-Host $_.FullName }
+        Write-Host "Publish dir contents:"
+        if (Test-Path "AgentConnect/${{ env.PUBLISH_DIR }}") {
+          Get-ChildItem "AgentConnect/${{ env.PUBLISH_DIR }}" | ForEach-Object { Write-Host "  $($_.Name)" }
+        } else {
+          Write-Host "  Directory AgentConnect/${{ env.PUBLISH_DIR }} not found"
+        }
+        if (Test-Path "${{ env.PUBLISH_DIR }}") {
+          Write-Host "Root publish dir contents:"
+          Get-ChildItem "${{ env.PUBLISH_DIR }}" | ForEach-Object { Write-Host "  $($_.Name)" }
+        }
+
     - name: Decode signing certificate
       if: steps.check_cert.outputs.has_cert == 'true'
       shell: pwsh
@@ -101,7 +117,7 @@ jobs:
         vpk pack `
           --packId com.averonhq.agentconnect `
           --packVersion ${{ steps.version.outputs.version }} `
-          --packDir ${{ env.PUBLISH_DIR }} `
+          --packDir AgentConnect/${{ env.PUBLISH_DIR }} `
           --packTitle "AgentConnect" `
           --packAuthors "AveronHQ" `
           --mainExe AgentConnect.exe `
@@ -117,7 +133,7 @@ jobs:
         vpk pack `
           --packId com.averonhq.agentconnect `
           --packVersion ${{ steps.version.outputs.version }} `
-          --packDir ${{ env.PUBLISH_DIR }} `
+          --packDir AgentConnect/${{ env.PUBLISH_DIR }} `
           --packTitle "AgentConnect" `
           --packAuthors "AveronHQ" `
           --mainExe AgentConnect.exe `
