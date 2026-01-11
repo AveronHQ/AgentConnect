@@ -1,0 +1,174 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*.*'
+
+env:
+  SOLUTION_PATH: 'AgentConnect.sln'
+  PROJECT_PATH: 'AgentConnect.csproj'
+  PUBLISH_DIR: 'publish'
+  RELEASES_DIR: 'Releases'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Extract version from tag
+      id: version
+      shell: bash
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore NuGet packages
+      run: nuget restore ${{ env.SOLUTION_PATH }}
+
+    - name: Build Release
+      run: |
+        msbuild ${{ env.PROJECT_PATH }} `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:Version=${{ steps.version.outputs.version }} `
+          /p:OutputPath=${{ env.PUBLISH_DIR }} `
+          /verbosity:minimal
+
+    - name: Decode signing certificate
+      if: ${{ secrets.CERT_PFX_BASE64 != '' }}
+      shell: pwsh
+      run: |
+        $certBytes = [Convert]::FromBase64String("${{ secrets.CERT_PFX_BASE64 }}")
+        [IO.File]::WriteAllBytes("${{ github.workspace }}\cert.pfx", $certBytes)
+        Write-Host "Certificate decoded successfully"
+
+    - name: Install Velopack CLI
+      run: dotnet tool install -g vpk
+
+    - name: Create Releases directory
+      run: mkdir -Force ${{ env.RELEASES_DIR }}
+
+    - name: Download previous releases for delta generation
+      shell: pwsh
+      run: |
+        try {
+          vpk download github `
+            --repoUrl https://github.com/${{ github.repository }} `
+            --token ${{ secrets.GITHUB_TOKEN }} `
+            --channel stable `
+            --outputDir ${{ env.RELEASES_DIR }}
+          Write-Host "Previous releases downloaded for delta generation"
+        } catch {
+          Write-Host "No previous releases found (first release)"
+        }
+      continue-on-error: true
+
+    - name: Package with Velopack (signed)
+      if: ${{ secrets.CERT_PFX_BASE64 != '' }}
+      shell: pwsh
+      run: |
+        vpk pack `
+          --packId com.averonhq.agentconnect `
+          --packVersion ${{ steps.version.outputs.version }} `
+          --packDir ${{ env.PUBLISH_DIR }} `
+          --packTitle "AgentConnect" `
+          --packAuthors "AveronHQ" `
+          --mainExe AgentConnect.exe `
+          --channel stable `
+          --delta BestSize `
+          --outputDir ${{ env.RELEASES_DIR }} `
+          --signParams "/f ${{ github.workspace }}\cert.pfx /p ${{ secrets.CERT_PASSWORD }} /fd SHA256 /tr http://timestamp.digicert.com /td SHA256"
+
+    - name: Package with Velopack (unsigned)
+      if: ${{ secrets.CERT_PFX_BASE64 == '' }}
+      shell: pwsh
+      run: |
+        vpk pack `
+          --packId com.averonhq.agentconnect `
+          --packVersion ${{ steps.version.outputs.version }} `
+          --packDir ${{ env.PUBLISH_DIR }} `
+          --packTitle "AgentConnect" `
+          --packAuthors "AveronHQ" `
+          --mainExe AgentConnect.exe `
+          --channel stable `
+          --delta BestSize `
+          --outputDir ${{ env.RELEASES_DIR }}
+        Write-Host "WARNING: Package is unsigned. Set CERT_PFX_BASE64 and CERT_PASSWORD secrets for signed releases." -ForegroundColor Yellow
+
+    - name: Create update manifest
+      shell: pwsh
+      run: |
+        $manifest = @{
+          Version = "${{ steps.version.outputs.version }}"
+          Channel = "stable"
+          Type = 1  # 0=Silent, 1=Prompted, 2=Forced, 3=SecurityHotfix
+          ReleaseNotes = "See GitHub release for details"
+          ReleaseNotesUrl = "https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}"
+          MaxDeferrals = 3
+          MinutesUntilForced = 10080
+        }
+        $manifest | ConvertTo-Json -Depth 10 | Out-File -FilePath "${{ env.RELEASES_DIR }}\update-manifest.json" -Encoding UTF8
+        Write-Host "Update manifest created"
+
+    - name: Upload to GitHub Releases
+      shell: pwsh
+      run: |
+        vpk upload github `
+          --repoUrl https://github.com/${{ github.repository }} `
+          --token ${{ secrets.GITHUB_TOKEN }} `
+          --outputDir ${{ env.RELEASES_DIR }} `
+          --publish `
+          --releaseName "AgentConnect ${{ steps.version.outputs.version }}" `
+          --tag v${{ steps.version.outputs.version }} `
+          --channel stable
+
+    - name: Upload update manifest to release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ${{ env.RELEASES_DIR }}/update-manifest.json
+        tag_name: v${{ steps.version.outputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cleanup certificate
+      if: always()
+      shell: pwsh
+      run: |
+        if (Test-Path "${{ github.workspace }}\cert.pfx") {
+          Remove-Item "${{ github.workspace }}\cert.pfx" -Force
+          Write-Host "Certificate cleaned up"
+        }
+
+    - name: Release summary
+      shell: pwsh
+      run: |
+        Write-Host ""
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Host "Release ${{ steps.version.outputs.version }} published!" -ForegroundColor Green
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}"
+        Write-Host ""
+        Write-Host "Files uploaded:"
+        Get-ChildItem ${{ env.RELEASES_DIR }} | ForEach-Object { Write-Host "  - $($_.Name)" }
