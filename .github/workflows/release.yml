@@ -50,7 +50,7 @@ jobs:
       run: |
         msbuild ${{ env.PROJECT_PATH }} `
           /p:Configuration=Release `
-          /p:Platform="Any CPU" `
+          /p:Platform=AnyCPU `
           /p:Version=${{ steps.version.outputs.version }} `
           /p:OutputPath=${{ env.PUBLISH_DIR }} `
           /verbosity:minimal
