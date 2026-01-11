@@ -2,7 +2,6 @@ using System.Windows;
 
 #if DEBUG
 using AgentConnect.DevTools;
-using AgentConnect.Updates.Models;
 using AgentConnect.Updates.UI;
 #endif
 
@@ -29,17 +28,7 @@ namespace AgentConnect
 #if DEBUG
         private void DebugUpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            var mockUpdateInfo = new ExtendedUpdateInfo
-            {
-                TargetVersion = "1.1.0.0",
-                Type = UpdateType.Prompted,
-                ReleaseNotes = "• New feature: Auto-update system\n• Improved performance\n• Bug fixes and stability improvements",
-                MaxDeferrals = 3,
-                IsCritical = false
-            };
-
-            var mockUpdateService = new MockUpdateService();
-            var updateWindow = new UpdatePromptWindow(mockUpdateInfo, mockUpdateService);
+            var updateWindow = new UpdatePromptWindow();
             updateWindow.Owner = this;
             updateWindow.ShowDialog();
         }

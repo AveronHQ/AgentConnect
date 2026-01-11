@@ -28,6 +28,9 @@ namespace AgentConnect.Updates.UI
         {
             get
             {
+                if (_updateInfo == null)
+                    return "A new update is ready to install";
+
                 switch (_updateInfo.Type)
                 {
                     case UpdateType.SecurityHotfix:
@@ -53,6 +56,26 @@ namespace AgentConnect.Updates.UI
         }
 
         public bool UserAccepted { get; private set; }
+
+#if DEBUG
+        /// <summary>
+        /// Debug-only constructor for UI preview during development.
+        /// </summary>
+        public UpdatePromptWindow()
+        {
+            InitializeComponent();
+            DataContext = this;
+
+            _updateInfo = null;
+            _updateService = null;
+
+            CurrentVersion = "1.0.0.0";
+            NewVersion = "1.1.0.0";
+            ReleaseNotes = "• New feature: Auto-update system\n• Improved performance\n• Bug fixes and stability improvements";
+            CanDefer = true;
+            DeferralsRemaining = 3;
+        }
+#endif
 
         public UpdatePromptWindow(ExtendedUpdateInfo updateInfo, IUpdateService updateService)
         {
