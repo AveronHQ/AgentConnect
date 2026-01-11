@@ -1,0 +1,195 @@
+<UserControl x:Class="AgentConnect.DevTools.UIMetricsOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="50" d:DesignWidth="150"
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded">
+    <Grid>
+        <!-- Clickaway overlay (invisible, closes details when clicked) -->
+        <Border x:Name="ClickAwayOverlay"
+                Background="Transparent"
+                Visibility="Collapsed"
+                MouseLeftButtonDown="ClickAwayOverlay_MouseLeftButtonDown"/>
+
+        <!-- Floating dimension button -->
+        <Border x:Name="FloatingButton"
+                Background="#2D2D30"
+                BorderBrush="#007ACC"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="8,4"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="20,20,0,0"
+                Cursor="Hand"
+                MouseLeftButtonDown="FloatingButton_MouseLeftButtonDown"
+                MouseLeftButtonUp="FloatingButton_MouseLeftButtonUp"
+                MouseMove="FloatingButton_MouseMove">
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="FloatingButtonTransform"/>
+            </Border.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="DEBUG"
+                           Foreground="#FF6B6B"
+                           FontFamily="Consolas"
+                           FontSize="9"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                <TextBlock x:Name="DimensionsText"
+                           Text="700 x 450"
+                           Foreground="White"
+                           FontFamily="Consolas"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text=" ▼"
+                           Foreground="#888"
+                           FontSize="8"
+                           VerticalAlignment="Center"
+                           Margin="4,0,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Details popup -->
+        <Border x:Name="DetailsPopup"
+                Background="#1E1E1E"
+                BorderBrush="#007ACC"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="20,55,0,0"
+                Visibility="Collapsed"
+                MaxWidth="320">
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="DetailsPopupTransform"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="3" Opacity="0.5"/>
+            </Border.Effect>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="UI Metrics"
+                               Foreground="#007ACC"
+                               FontWeight="SemiBold"
+                               FontSize="13"/>
+                    <Border Background="#FF6B6B" CornerRadius="2" Padding="4,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="DEBUG ONLY" Foreground="White" FontSize="9" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Window Size Section -->
+                <TextBlock Text="WINDOW" Foreground="#4EC9B0" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Size (XAML):" Foreground="#888" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DetailSize" Text="700 x 450" Foreground="White" FontFamily="Consolas" FontSize="11"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Actual Size:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DetailActualSize" Text="700 x 450" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Client Area:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DetailClientArea" Text="684 x 411" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Position:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DetailPosition" Text="100, 100" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="State:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="DetailWindowState" Text="Normal" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Topmost:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="DetailTopmost" Text="No" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+                </Grid>
+
+                <!-- DPI/Scaling Section -->
+                <TextBlock Text="DPI / SCALING" Foreground="#4EC9B0" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="DPI:" Foreground="#888" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DetailDpi" Text="96 x 96" Foreground="White" FontFamily="Consolas" FontSize="11"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Scale Factor:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DetailScaleFactor" Text="100%" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Pixels per DIP:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DetailPixelsPerDip" Text="1.0" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Physical Size:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DetailPhysicalSize" Text="700 x 450 px" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+                </Grid>
+
+                <!-- Screen/Monitor Section -->
+                <TextBlock Text="SCREEN / MONITOR" Foreground="#4EC9B0" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Resolution:" Foreground="#888" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DetailScreenRes" Text="1920 x 1080" Foreground="White" FontFamily="Consolas" FontSize="11"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Work Area:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DetailWorkArea" Text="1920 x 1040" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Primary:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="DetailPrimaryScreen" Text="Yes" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Monitor #:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DetailMonitorNumber" Text="1 of 1" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+                </Grid>
+
+                <!-- Rendering Section -->
+                <TextBlock Text="RENDERING" Foreground="#4EC9B0" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Render Tier:" Foreground="#888" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DetailRenderTier" Text="Tier 2 (HW)" Foreground="White" FontFamily="Consolas" FontSize="11"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="GPU Accel:" Foreground="#888" FontSize="11" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DetailGpuAccel" Text="Yes" Foreground="White" FontFamily="Consolas" FontSize="11" Margin="0,2,0,0"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
