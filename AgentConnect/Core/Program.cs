@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using NuGet.Versioning;
 using Velopack;
 
 namespace AgentConnect.Core
