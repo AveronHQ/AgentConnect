@@ -5,132 +5,498 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AgentConnect"
         mc:Ignorable="d"
-        Title="AgentConnect" Height="450" Width="700"
+        Title="AgentConnect" Height="700" Width="1200"
+        MinHeight="500" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Window.Resources>
+        <!-- Header Icon Button Style -->
+        <Style x:Key="HeaderIconButton" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="Transparent"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ButtonActiveBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Header Text Button Style -->
+        <Style x:Key="HeaderTextButton" TargetType="Button">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="Transparent"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ButtonActiveBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accent Button Style -->
+        <Style x:Key="AccentButton" TargetType="Button">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{DynamicResource AccentBrush}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource AccentActiveBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dropdown Menu Style -->
+        <Style x:Key="DropdownPopup" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource DropdownBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DropdownBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.15" Direction="270"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Menu Item Style -->
+        <Style x:Key="MenuItemButton" TargetType="Button">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ItemBorder"
+                                Background="Transparent"
+                                CornerRadius="4"
+                                Padding="10,8">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource MenuItemHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Badge Style -->
+        <Style x:Key="NotificationBadge" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BadgeBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="MinWidth" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+    </Window.Resources>
+
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="48"/>
+            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header Bar -->
+        <!-- ========================================== -->
+        <!-- ENTERPRISE HEADER BAR                      -->
+        <!-- ========================================== -->
         <Border Grid.Row="0"
                 Background="{DynamicResource HeaderBackgroundBrush}"
                 BorderBrush="{DynamicResource HeaderBorderBrush}"
                 BorderThickness="0,0,0,1">
-            <Grid Margin="16,0">
+            <Grid Margin="12,0">
                 <Grid.ColumnDefinitions>
+                    <!-- Left Section: Logo, Nav, Breadcrumbs -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- Center Section: Search/Command Palette -->
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <!-- Right Section: Actions, Notifications, Profile -->
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- App Title -->
+                <!-- ===== LEFT SECTION ===== -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Ellipse Width="24" Height="24" Margin="0,0,10,0">
-                        <Ellipse.Fill>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#0078D4" Offset="0"/>
-                                <GradientStop Color="#00B4FF" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                    <TextBlock Text="AgentConnect"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryTextBrush}"
-                               VerticalAlignment="Center"/>
+
+                    <!-- Hamburger Menu -->
+                    <Button x:Name="HamburgerMenuButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Menu" Click="HamburgerMenuButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+                    </Button>
+
+                    <!-- App Logo & Name -->
+                    <StackPanel Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <Grid Width="32" Height="32">
+                            <Ellipse>
+                                <Ellipse.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#0969DA" Offset="0"/>
+                                        <GradientStop Color="#1F6FEB" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <TextBlock Text="A" FontSize="16" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="AgentConnect"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryTextBrush}"
+                                   VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <Border Width="1" Height="24" Background="{DynamicResource DividerBrush}" Margin="16,0"/>
+
+                    <!-- Navigation Buttons -->
+                    <Button x:Name="HomeButton" Style="{StaticResource HeaderIconButton}" ToolTip="Home (Alt+H)">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                    </Button>
+
+                    <Button x:Name="BackButton" Style="{StaticResource HeaderIconButton}" ToolTip="Go Back" Margin="2,0,0,0">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                    </Button>
+
+                    <Button x:Name="ForwardButton" Style="{StaticResource HeaderIconButton}" ToolTip="Go Forward" Margin="2,0,0,0">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource TertiaryTextBrush}"
+                              Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/>
+                    </Button>
+
+                    <!-- Breadcrumbs -->
+                    <StackPanel x:Name="BreadcrumbsPanel" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Dashboard" FontSize="13" Foreground="{DynamicResource LinkTextBrush}" Cursor="Hand"/>
+                        <TextBlock Text="/" FontSize="13" Foreground="{DynamicResource TertiaryTextBrush}" Margin="6,0"/>
+                        <TextBlock Text="Overview" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Update Available Button -->
-                <Button x:Name="UpdateAvailableButton"
-                        Grid.Column="2"
-                        Click="UpdateAvailableButton_Click"
-                        VerticalAlignment="Center"
-                        Margin="0,0,12,0"
-                        Cursor="Hand"
-                        Visibility="Collapsed"
-                        ToolTip="A new version is available">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="ButtonBorder"
-                                    Background="#0078D4"
-                                    CornerRadius="6"
-                                    Padding="10,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <!-- Download/Update arrow icon -->
-                                    <Path Width="14" Height="14"
-                                          Stretch="Uniform"
-                                          Fill="White"
-                                          VerticalAlignment="Center"
-                                          Data="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
-                                    <TextBlock Text="Update Available"
-                                               Margin="6,0,0,0"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ButtonBorder" Property="Background" Value="#106EBE"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                <!-- ===== CENTER SECTION ===== -->
+                <Grid Grid.Column="1" Margin="24,0">
+                    <!-- Command Palette / Search Bar -->
+                    <Button x:Name="CommandPaletteButton"
+                            HorizontalAlignment="Center"
+                            MaxWidth="600" Width="480"
+                            Height="36"
+                            Cursor="Hand"
+                            ToolTip="Search or run command (Ctrl+K)"
+                            Click="CommandPaletteButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="SearchBorder"
+                                        Background="{DynamicResource InputBackgroundBrush}"
+                                        BorderBrush="{DynamicResource InputBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="12,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                <!-- Theme Toggle Button -->
-                <Button x:Name="ThemeToggleButton"
-                        Grid.Column="3"
-                        Click="ThemeToggleButton_Click"
-                        VerticalAlignment="Center"
-                        Cursor="Hand"
-                        ToolTip="Toggle light/dark theme">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="ButtonBorder"
-                                    Background="Transparent"
-                                    CornerRadius="6"
-                                    Padding="8,6">
-                                <StackPanel Orientation="Horizontal">
-                                    <!-- Sun icon (light mode) -->
-                                    <Path x:Name="SunIcon"
-                                          Width="18" Height="18"
-                                          Stretch="Uniform"
-                                          Fill="{DynamicResource SecondaryTextBrush}"
-                                          Data="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0 c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2 c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1 S11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0 s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06 c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41 c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36 c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/>
-                                    <!-- Moon icon (dark mode) -->
-                                    <Path x:Name="MoonIcon"
-                                          Width="18" Height="18"
-                                          Stretch="Uniform"
-                                          Fill="{DynamicResource SecondaryTextBrush}"
-                                          Visibility="Collapsed"
-                                          Data="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36c-0.98,1.37-2.58,2.26-4.4,2.26 c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/>
-                                    <TextBlock x:Name="ThemeText"
-                                               Text="Light"
-                                               Margin="6,0,0,0"
-                                               FontSize="13"
-                                               Foreground="{DynamicResource SecondaryTextBrush}"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
+                                        <!-- Search Icon -->
+                                        <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform"
+                                              Fill="{DynamicResource TertiaryTextBrush}" VerticalAlignment="Center"
+                                              Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+
+                                        <!-- Placeholder Text -->
+                                        <TextBlock Grid.Column="1" Text="Search or type a command..."
+                                                   FontSize="13" Foreground="{DynamicResource InputPlaceholderBrush}"
+                                                   VerticalAlignment="Center" Margin="10,0,0,0"/>
+
+                                        <!-- Keyboard Shortcut -->
+                                        <Border Grid.Column="2" Background="{DynamicResource ButtonHoverBrush}"
+                                                CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                                            <TextBlock Text="Ctrl+K" FontSize="11" FontWeight="Medium"
+                                                       Foreground="{DynamicResource TertiaryTextBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="SearchBorder" Property="BorderBrush" Value="{DynamicResource BorderMutedBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+
+                <!-- ===== RIGHT SECTION ===== -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+
+                    <!-- Environment Badge -->
+                    <Border x:Name="EnvironmentBadge" Background="{DynamicResource SuccessSubtleBrush}"
+                            CornerRadius="4" Padding="8,4" Margin="0,0,8,0" VerticalAlignment="Center">
+                        <TextBlock Text="Production" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SuccessBrush}"/>
+                    </Border>
+
+                    <!-- Update Available Button -->
+                    <Button x:Name="UpdateAvailableButton"
+                            Style="{StaticResource AccentButton}"
+                            Click="UpdateAvailableButton_Click"
+                            Margin="0,0,8,0"
+                            Visibility="Collapsed"
+                            ToolTip="A new version is available">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="14" Height="14" Stretch="Uniform" Fill="White" VerticalAlignment="Center"
+                                  Data="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                            <TextBlock Text="Update" Margin="6,0,0,0" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Quick Create -->
+                    <Button x:Name="QuickCreateButton" Style="{StaticResource AccentButton}"
+                            ToolTip="Create new (Ctrl+N)" Margin="0,0,4,0" Click="QuickCreateButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="14" Height="14" Stretch="Uniform" Fill="White" VerticalAlignment="Center"
+                                  Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                            <TextBlock Text="Create" Margin="6,0,0,0" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Divider -->
+                    <Border Width="1" Height="24" Background="{DynamicResource DividerBrush}" Margin="8,0"/>
+
+                    <!-- Favorites -->
+                    <Button x:Name="FavoritesButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Favorites" Click="FavoritesButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/>
+                    </Button>
+
+                    <!-- Recent Items -->
+                    <Button x:Name="RecentButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Recent items" Margin="2,0,0,0" Click="RecentButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                    </Button>
+
+                    <!-- Sync Status -->
+                    <Button x:Name="SyncStatusButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Sync status: All changes saved" Margin="2,0,0,0" Click="SyncStatusButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SuccessBrush}"
+                              Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4M21.4,11.6C21.4,11.6 20.3,10.5 19.5,9.7L18.1,11.1C18.7,11.7 19.4,12.4 19.4,12.4C18.6,15.5 15.6,17.8 12,18V20A10,10 0 0,0 22,12C22,11.9 22,11.8 21.4,11.6M12,6V10L16,12L12,14V18C8.7,18 6,15.3 6,12C6,8.7 8.7,6 12,6Z"/>
+                    </Button>
+
+                    <!-- Divider -->
+                    <Border Width="1" Height="24" Background="{DynamicResource DividerBrush}" Margin="8,0"/>
+
+                    <!-- Messages -->
+                    <Button x:Name="MessagesButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Messages" Click="MessagesButton_Click">
+                        <Grid>
+                            <Path Width="18" Height="18" Stretch="Uniform"
+                                  Fill="{DynamicResource SecondaryTextBrush}"
+                                  Data="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H5.17L4,17.17V4H20V16M12,15L7,10H10V6H14V10H17L12,15Z"/>
+                            <!-- Badge -->
+                            <Border x:Name="MessagesBadge" Style="{StaticResource NotificationBadge}"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0"
+                                    Visibility="Visible">
+                                <TextBlock Text="3" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource BadgeTextBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        </Grid>
+                    </Button>
+
+                    <!-- Notifications -->
+                    <Button x:Name="NotificationsButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Notifications" Margin="2,0,0,0" Click="NotificationsButton_Click">
+                        <Grid>
+                            <Path Width="18" Height="18" Stretch="Uniform"
+                                  Fill="{DynamicResource SecondaryTextBrush}"
+                                  Data="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
+                            <!-- Badge -->
+                            <Border x:Name="NotificationsBadge" Style="{StaticResource NotificationBadge}"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0"
+                                    Visibility="Visible">
+                                <TextBlock Text="5" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource BadgeTextBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                    </Button>
+
+                    <!-- Activity Feed -->
+                    <Button x:Name="ActivityButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Activity feed" Margin="2,0,0,0" Click="ActivityButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/>
+                    </Button>
+
+                    <!-- Divider -->
+                    <Border Width="1" Height="24" Background="{DynamicResource DividerBrush}" Margin="8,0"/>
+
+                    <!-- Help -->
+                    <Button x:Name="HelpButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Help &amp; Support (F1)" Click="HelpButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z"/>
+                    </Button>
+
+                    <!-- Keyboard Shortcuts -->
+                    <Button x:Name="ShortcutsButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Keyboard shortcuts" Margin="2,0,0,0" Click="ShortcutsButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M19,10H17V8H19M19,13H17V11H19M16,10H14V8H16M16,13H14V11H16M16,17H8V15H16M7,10H5V8H7M7,13H5V11H7M8,11H10V13H8M8,8H10V10H8M11,11H13V13H11M11,8H13V10H11M20,5H4C2.89,5 2,5.89 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7C22,5.89 21.1,5 20,5Z"/>
+                    </Button>
+
+                    <!-- Settings -->
+                    <Button x:Name="SettingsButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Settings" Margin="2,0,0,0" Click="SettingsButton_Click">
+                        <Path Width="18" Height="18" Stretch="Uniform"
+                              Fill="{DynamicResource SecondaryTextBrush}"
+                              Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                    </Button>
+
+                    <!-- Theme Toggle -->
+                    <Button x:Name="ThemeToggleButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Toggle theme" Margin="2,0,0,0" Click="ThemeToggleButton_Click">
+                        <Grid>
+                            <!-- Sun Icon (Light Mode) -->
+                            <Path x:Name="SunIcon" Width="18" Height="18" Stretch="Uniform"
+                                  Fill="{DynamicResource SecondaryTextBrush}"
+                                  Data="M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L14.39,5.42C13.65,5.15 12.84,5 12,5C11.16,5 10.35,5.15 9.61,5.42L12,2M3.34,7L7.5,6.65C6.9,7.16 6.36,7.78 5.94,8.5C5.5,9.24 5.25,10 5.11,10.79L3.34,7M3.36,17L5.12,13.23C5.26,14 5.53,14.78 5.95,15.5C6.37,16.24 6.91,16.86 7.5,17.37L3.36,17M20.65,7L18.88,10.79C18.74,10 18.47,9.23 18.05,8.5C17.63,7.78 17.1,7.15 16.5,6.64L20.65,7M20.64,17L16.5,17.36C17.09,16.85 17.62,16.22 18.04,15.5C18.46,14.77 18.73,14 18.87,13.21L20.64,17M12,22L9.59,18.56C10.33,18.83 11.14,19 12,19C12.82,19 13.63,18.83 14.37,18.56L12,22Z"/>
+                            <!-- Moon Icon (Dark Mode) -->
+                            <Path x:Name="MoonIcon" Width="18" Height="18" Stretch="Uniform" Visibility="Collapsed"
+                                  Fill="{DynamicResource SecondaryTextBrush}"
+                                  Data="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95Z"/>
+                        </Grid>
+                    </Button>
+
+                    <!-- Divider -->
+                    <Border Width="1" Height="24" Background="{DynamicResource DividerBrush}" Margin="8,0"/>
+
+                    <!-- Workspace Switcher -->
+                    <Button x:Name="WorkspaceSwitcher" Style="{StaticResource HeaderTextButton}"
+                            ToolTip="Switch workspace" Margin="0,0,4,0" Click="WorkspaceSwitcher_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="20" Height="20" CornerRadius="4" Background="{DynamicResource AccentSubtleBrush}">
+                                <TextBlock Text="A" FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Averon HQ" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,4,0"/>
+                            <Path Width="10" Height="10" Stretch="Uniform"
+                                  Fill="{DynamicResource TertiaryTextBrush}" VerticalAlignment="Center"
+                                  Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- User Profile -->
+                    <Button x:Name="ProfileButton" Style="{StaticResource HeaderIconButton}"
+                            ToolTip="Profile &amp; Settings" Click="ProfileButton_Click" Width="Auto" Padding="4">
+                        <Grid>
+                            <!-- Avatar -->
+                            <Border Width="32" Height="32" CornerRadius="16"
+                                    BorderBrush="{DynamicResource AvatarBorderBrush}" BorderThickness="2">
+                                <Border CornerRadius="14">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#667EEA" Offset="0"/>
+                                            <GradientStop Color="#764BA2" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <TextBlock Text="JD" FontSize="11" FontWeight="Bold" Foreground="White"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                            <!-- Presence Indicator -->
+                            <Ellipse Width="10" Height="10"
+                                     Fill="{DynamicResource PresenceOnlineBrush}"
+                                     Stroke="{DynamicResource HeaderBackgroundBrush}"
+                                     StrokeThickness="2"
+                                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                     Margin="0,0,-2,-2"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Main content area -->
+        <!-- ========================================== -->
+        <!-- MAIN CONTENT AREA                          -->
+        <!-- ========================================== -->
         <Grid x:Name="MainContent" Grid.Row="1">
-            <!-- Your main content goes here -->
+            <!-- Placeholder content with theme-aware styling -->
+            <Border Margin="24" Background="{DynamicResource CardBackgroundBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                    CornerRadius="8">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="Welcome to AgentConnect"
+                               FontSize="28" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryTextBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Enterprise-grade connectivity platform"
+                               FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock Text="Toggle the theme using the sun/moon icon in the header"
+                               FontSize="12" Foreground="{DynamicResource TertiaryTextBrush}"
+                               HorizontalAlignment="Center" Margin="0,24,0,0"/>
+                </StackPanel>
+            </Border>
 
             <!-- Debug button for testing UpdatePromptWindow -->
             <Button x:Name="DebugUpdateButton"

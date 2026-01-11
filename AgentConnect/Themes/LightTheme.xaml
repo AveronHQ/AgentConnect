@@ -1,15 +1,100 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Light Theme Colors -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F8F9FA"/>
-    <SolidColorBrush x:Key="HeaderBorderBrush" Color="#E0E0E0"/>
-    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#1A1A1A"/>
-    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#666666"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="#0078D4"/>
-    <SolidColorBrush x:Key="ButtonHoverBrush" Color="#E8E8E8"/>
+    <!-- ============================================== -->
+    <!-- LIGHT THEME - Enterprise Design System        -->
+    <!-- ============================================== -->
+
+    <!-- Core Backgrounds -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FAFBFC"/>
+    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="HeaderBorderBrush" Color="#E1E4E8"/>
+    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#F6F8FA"/>
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="CardBorderBrush" Color="#E0E0E0"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#E1E4E8"/>
+    <SolidColorBrush x:Key="OverlayBackgroundBrush" Color="#00000033"/>
+
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#24292F"/>
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#57606A"/>
+    <SolidColorBrush x:Key="TertiaryTextBrush" Color="#8C959F"/>
+    <SolidColorBrush x:Key="DisabledTextBrush" Color="#AFB8C1"/>
+    <SolidColorBrush x:Key="InverseTextBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="LinkTextBrush" Color="#0969DA"/>
+
+    <!-- Accent Colors -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#0969DA"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#0860CA"/>
+    <SolidColorBrush x:Key="AccentActiveBrush" Color="#0550AE"/>
+    <SolidColorBrush x:Key="AccentSubtleBrush" Color="#DDF4FF"/>
+    <SolidColorBrush x:Key="AccentMutedBrush" Color="#54AEFF"/>
+
+    <!-- Status Colors -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="#1A7F37"/>
+    <SolidColorBrush x:Key="SuccessSubtleBrush" Color="#DAFBE1"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="#9A6700"/>
+    <SolidColorBrush x:Key="WarningSubtleBrush" Color="#FFF8C5"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="#CF222E"/>
+    <SolidColorBrush x:Key="DangerSubtleBrush" Color="#FFEBE9"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="#0969DA"/>
+    <SolidColorBrush x:Key="InfoSubtleBrush" Color="#DDF4FF"/>
+
+    <!-- Interactive States -->
+    <SolidColorBrush x:Key="ButtonHoverBrush" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="ButtonActiveBrush" Color="#EBECF0"/>
+    <SolidColorBrush x:Key="ButtonSelectedBrush" Color="#DDF4FF"/>
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="InputBorderBrush" Color="#D0D7DE"/>
+    <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#0969DA"/>
+    <SolidColorBrush x:Key="InputPlaceholderBrush" Color="#6E7781"/>
+
+    <!-- Dividers & Borders -->
+    <SolidColorBrush x:Key="DividerBrush" Color="#D8DEE4"/>
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="#D0D7DE"/>
+    <SolidColorBrush x:Key="BorderMutedBrush" Color="#AFB8C1"/>
+
+    <!-- Avatar & Presence -->
+    <SolidColorBrush x:Key="AvatarBorderBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="PresenceOnlineBrush" Color="#1A7F37"/>
+    <SolidColorBrush x:Key="PresenceAwayBrush" Color="#9A6700"/>
+    <SolidColorBrush x:Key="PresenceBusyBrush" Color="#CF222E"/>
+    <SolidColorBrush x:Key="PresenceOfflineBrush" Color="#8C959F"/>
+
+    <!-- Badge Colors -->
+    <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#CF222E"/>
+    <SolidColorBrush x:Key="BadgeTextBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BadgeSecondaryBrush" Color="#57606A"/>
+    <SolidColorBrush x:Key="BadgeSecondaryTextBrush" Color="#FFFFFF"/>
+
+    <!-- Dropdown & Menu -->
+    <SolidColorBrush x:Key="DropdownBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="DropdownBorderBrush" Color="#D0D7DE"/>
+    <SolidColorBrush x:Key="DropdownShadowBrush" Color="#0000001A"/>
+    <SolidColorBrush x:Key="MenuItemHoverBrush" Color="#F6F8FA"/>
+    <SolidColorBrush x:Key="MenuItemActiveBrush" Color="#EBECF0"/>
+
+    <!-- Tooltip -->
+    <SolidColorBrush x:Key="TooltipBackgroundBrush" Color="#24292F"/>
+    <SolidColorBrush x:Key="TooltipTextBrush" Color="#FFFFFF"/>
+
+    <!-- Scrollbar -->
+    <SolidColorBrush x:Key="ScrollbarTrackBrush" Color="#F6F8FA"/>
+    <SolidColorBrush x:Key="ScrollbarThumbBrush" Color="#AFB8C1"/>
+    <SolidColorBrush x:Key="ScrollbarThumbHoverBrush" Color="#8C959F"/>
+
+    <!-- Shadows (as colors for DropShadowEffect) -->
+    <Color x:Key="ShadowColor">#000000</Color>
+    <sys:Double x:Key="ShadowOpacity" xmlns:sys="clr-namespace:System;assembly=mscorlib">0.1</sys:Double>
+
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#0969DA" Offset="0"/>
+        <GradientStop Color="#1F6FEB" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="HeaderGlowBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Color="#0969DA00" Offset="0"/>
+        <GradientStop Color="#0969DA15" Offset="1"/>
+    </LinearGradientBrush>
 
 </ResourceDictionary>
