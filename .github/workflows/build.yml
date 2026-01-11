@@ -7,8 +7,8 @@ on:
     branches: [ master, main ]
 
 env:
-  SOLUTION_PATH: 'AgentConnect.sln'
-  PROJECT_PATH: 'AgentConnect.csproj'
+  SOLUTION_PATH: 'AveronHQ.sln'
+  PROJECT_PATH: 'AgentConnect/AgentConnect.csproj'
 
 jobs:
   build:
@@ -45,12 +45,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AgentConnect-Debug
-        path: bin/Debug/
+        path: AgentConnect/bin/Debug/
         retention-days: 7
 
     - name: Upload Release artifacts
       uses: actions/upload-artifact@v4
       with:
         name: AgentConnect-Release
-        path: bin/Release/
+        path: AgentConnect/bin/Release/
         retention-days: 30

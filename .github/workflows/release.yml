@@ -6,9 +6,9 @@ on:
       - 'v*.*.*.*'
 
 env:
-  SOLUTION_PATH: 'AgentConnect.sln'
-  PROJECT_PATH: 'AgentConnect.csproj'
-  PUBLISH_DIR: 'publish'
+  SOLUTION_PATH: 'AveronHQ.sln'
+  PROJECT_PATH: 'AgentConnect/AgentConnect.csproj'
+  PUBLISH_DIR: 'AgentConnect/publish'
   RELEASES_DIR: 'Releases'
 
 permissions:
