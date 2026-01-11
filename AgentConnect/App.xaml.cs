@@ -15,9 +15,9 @@ namespace AgentConnect
         {
             base.OnStartup(e);
 
-            // Show main window (since we removed StartupUri)
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
+            // Show splash screen first (it will show MainWindow after connectivity checks)
+            var splashScreen = new SplashScreen();
+            splashScreen.Show();
 
             // Initialize and start update scheduler
             InitializeUpdateSystem();
