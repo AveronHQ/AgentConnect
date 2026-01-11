@@ -32,6 +32,16 @@ jobs:
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Building version: $VERSION"
 
+    - name: Check for signing certificate
+      id: check_cert
+      shell: bash
+      run: |
+        if [ -n "${{ secrets.CERT_PFX_BASE64 }}" ]; then
+          echo "has_cert=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_cert=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
@@ -56,7 +66,7 @@ jobs:
           /verbosity:minimal
 
     - name: Decode signing certificate
-      if: ${{ secrets.CERT_PFX_BASE64 != '' }}
+      if: steps.check_cert.outputs.has_cert == 'true'
       shell: pwsh
       run: |
         $certBytes = [Convert]::FromBase64String("${{ secrets.CERT_PFX_BASE64 }}")
@@ -85,7 +95,7 @@ jobs:
       continue-on-error: true
 
     - name: Package with Velopack (signed)
-      if: ${{ secrets.CERT_PFX_BASE64 != '' }}
+      if: steps.check_cert.outputs.has_cert == 'true'
       shell: pwsh
       run: |
         vpk pack `
@@ -101,7 +111,7 @@ jobs:
           --signParams "/f ${{ github.workspace }}\cert.pfx /p ${{ secrets.CERT_PASSWORD }} /fd SHA256 /tr http://timestamp.digicert.com /td SHA256"
 
     - name: Package with Velopack (unsigned)
-      if: ${{ secrets.CERT_PFX_BASE64 == '' }}
+      if: steps.check_cert.outputs.has_cert == 'false'
       shell: pwsh
       run: |
         vpk pack `
